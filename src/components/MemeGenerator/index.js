@@ -1,14 +1,14 @@
 import {Component} from 'react'
 import {
-  AppContainer, 
+  AppContainer,
   FormContainer,
   Heading,
   Label,
   Input,
   Button,
   MemeContainer,
-  MemeText
-  } from './styledComponents'
+  MemeText,
+} from './styledComponents'
 
 const fontSizesOptionsList = [
   {
@@ -48,6 +48,7 @@ class MemeGenerator extends Component {
     topText: '',
     bottomText: '',
     fontSize: fontSizesOptionsList[0].optionId,
+    memeDetails: null,
   }
 
   onChangeInput = event => {
@@ -57,49 +58,74 @@ class MemeGenerator extends Component {
 
   onClickSubmitEvent = event => {
     event.preventDefault()
-    
-    const {bottomText, topText,imgUrl, fontSize} = this.state
-    const memeContainerEl = document.getElementById('memeContainer')
-    memeContainerEl.style.backgroundImage = `url('${imgUrl}')`
-    
-    const topTextEl = document.getElementById('topText')
-    topTextEl.textContent = topText
-    memeContainerEl.style.fontSize = fontSize + "px"
+    const {bottomText, topText, imgUrl, fontSize} = this.state
+    this.setState({memeDetails: {bottomText, topText, imgUrl, fontSize}})
+  }
 
-    const bottomTextEl = document.getElementById('bottomText')
-    bottomTextEl.textContent = bottomText
-    memeContainerEl.style.fontSize = fontSize + "px"
+  renderMeme = () => {
+    const {memeDetails} = this.state
+    const {bottomText, topText, imgUrl, fontSize} = memeDetails
+
+    return (
+      <MemeContainer imgUrl={imgUrl} data-testid="meme">
+        <MemeText fontSize={fontSize}>{topText}</MemeText>
+        <MemeText fontSize={fontSize}>{bottomText}</MemeText>
+      </MemeContainer>
+    )
   }
 
   render() {
-    const {imgUrl, topText, bottomText, fontSize} = this.state
+    const {imgUrl, topText, bottomText, fontSize, memeDetails} = this.state
     return (
       <AppContainer>
-        <FormContainer>
+        <FormContainer onSubmit={this.onClickSubmitEvent}>
           <Heading>Meme Generator</Heading>
-          
+
           <Label htmlFor="input1">Image URL</Label>
-          <Input type="text" id="input1" name="imgUrl" onChange={this.onChangeInput} value={imgUrl} />
-          
+          <Input
+            type="text"
+            id="input1"
+            name="imgUrl"
+            onChange={this.onChangeInput}
+            value={imgUrl}
+          />
+
           <Label htmlFor="input2">Top Text</Label>
-          <Input type="text" id="input2" name="topText" onChange={this.onChangeInput} value={topText} />
-          
+          <Input
+            type="text"
+            id="input2"
+            name="topText"
+            onChange={this.onChangeInput}
+            value={topText}
+          />
+
           <Label htmlFor="input3">Bottom Text</Label>
-          <Input type="text" id="input3" name="bottomText" onChange={this.onChangeInput} value={bottomText} />
-          
-          <Label htmlFor="input4">Font Size</Label>
-          <Input as="select" id="input4" name="fontSize" onChange={this.onChangeInput} value={fontSize}>
-            {
-              fontSizesOptionsList.map(item => <option key={item.optionId} value={item.optionId}>{item.displayText}</option>)
-            }
+          <Input
+            type="text"
+            id="input3"
+            name="bottomText"
+            onChange={this.onChangeInput}
+            value={bottomText}
+          />
+
+          <Label htmlFor="selectInput">Font Size</Label>
+          <Input
+            id="selectInput"
+            as="select"
+            name="fontSize"
+            onChange={this.onChangeInput}
+            value={fontSize}
+          >
+            {fontSizesOptionsList.map(item => (
+              <option key={item.optionId} value={item.optionId}>
+                {item.displayText}
+              </option>
+            ))}
           </Input>
-          
-          <Button type="button" onClick={this.onClickSubmitEvent}>Generate</Button>
+
+          <Button type="submit">Generate</Button>
         </FormContainer>
-        <MemeContainer id="memeContainer" data-testid="meme">
-          <MemeText id="topText"></MemeText>
-          <MemeText id="bottomText"></MemeText>
-        </MemeContainer>
+        {memeDetails !== null && this.renderMeme()}
       </AppContainer>
     )
   }
